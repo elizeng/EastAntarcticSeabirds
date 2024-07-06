@@ -1,0 +1,22 @@
+##########
+## PSMC ##
+##########
+
+# Set mutation rate = MU
+# Set generation length = GL
+
+fq2psmcfa -q20 sample.fq.gz > sample.psmcfa
+	
+splitfa sample.psmcfa > sample_split.psmcfa
+	
+psmc -N25 -t15 -r5 -p "4+25*2+4+6" -o sample.psmc sample.psmcfa
+	
+psmc_plot.pl -u MU -g GL -R -p sample_psmc_plot sample.psmc
+
+
+# For bootstrapping
+seq 100 | parallel -I% --max-args 1 psmc -N25 -t15 -r5 -b -p "4+25*2+4+6" -o sample_11_g10_round-%.psmc sample_split.psmcfa | sh
+	
+cat sample.psmc sample_11_g10_round-*.psmc > sample_combined.psmc
+	
+psmc_plot.pl -u MU -g GL -R -p sample_combinedplot sample_combined.psmc
